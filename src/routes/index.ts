@@ -1,9 +1,9 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
+
+import transactionsRoutes from './transactions.routes';
 
 const routes = Router();
 
-routes.get('/', (req: Request, res: Response) => {
-  return res.json({ message: 'Hello world!' });
-});
+routes.use('/transactions', transactionsRoutes);
 
 export default routes;
