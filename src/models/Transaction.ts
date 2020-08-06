@@ -12,11 +12,6 @@ import {
 import Category from './Category';
 import configTables from '../config/tables';
 
-enum EType {
-  income = 'income',
-  outcome = 'outcome',
-}
-
 @Entity(configTables.TRANSACTIONS)
 class Transaction {
   @PrimaryGeneratedColumn('uuid')
@@ -30,7 +25,10 @@ class Transaction {
   category!: Category;
 
   @Column()
-  type!: EType;
+  category_id!: string;
+
+  @Column()
+  type!: string;
 
   @Column()
   value!: number;

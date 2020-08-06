@@ -1,16 +1,47 @@
 import { Router, Request, Response } from 'express';
 import HTTPStatusCode from 'http-status-codes';
 
+import CreateTransactionService from '../services/CreateTransactionService';
+import ListTransactionsService from '../services/ListTransactionsService';
+import DeleteTransactionService from '../services/DeleteTransactionService';
+
+import validateRequest from '../middlewares/validate-request';
+import { createTransaction, deleteTransaction } from '../schemas/transaction';
+
 const routes = Router();
 
-routes.post('/', (req: Request, res: Response) => {
-  return res
-    .status(HTTPStatusCode.CREATED)
-    .json({ message: 'new transaction' });
+routes.post(
+  '/',
+  validateRequest(createTransaction, 'body'),
+  async (req: Request, res: Response) => {
+    const { category, title, type, value } = req.body;
+    const createTransactionService = new CreateTransactionService();
+    const transaction = await createTransactionService.execute({
+      category,
+      title,
+      type,
+      value,
+    });
+
+    return res.status(HTTPStatusCode.CREATED).json({ transaction });
+  },
+);
+
+routes.get('/', async (req: Request, res: Response) => {
+  const listTransactionsService = new ListTransactionsService();
+  const transactions = await listTransactionsService.execute();
+  return res.status(HTTPStatusCode.OK).json(transactions);
 });
 
-routes.get('/', (req: Request, res: Response) => {
-  return res.status(HTTPStatusCode.OK).json({ message: 'new transaction' });
-});
+routes.delete(
+  '/:transactionId',
+  validateRequest(deleteTransaction, 'params'),
+  async (req: Request, res: Response) => {
+    const { transactionId } = req.params;
+    const deleteTransactionService = new DeleteTransactionService();
+    await deleteTransactionService.execute({ transactionId });
+    return res.status(HTTPStatusCode.NO_CONTENT).json({});
+  },
+);
 
 export default routes;
