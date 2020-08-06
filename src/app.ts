@@ -1,12 +1,13 @@
 import express from 'express';
 import 'express-async-errors';
 
-import './database';
 import routes from './routes';
 
 import errorsMiddleware from './middlewares/errors';
 import logResquest from './middlewares/logResquest';
+import createConnection from './database';
 
+createConnection();
 const app = express();
 
 app.use(express.json());

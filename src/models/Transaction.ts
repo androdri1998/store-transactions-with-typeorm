@@ -15,29 +15,29 @@ import configTables from '../config/tables';
 @Entity(configTables.TRANSACTIONS)
 class Transaction {
   @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  id: string;
 
   @Column()
-  title!: string;
+  title: string;
 
   @ManyToOne(() => Category)
   @JoinColumn({ name: 'category_id' })
-  category!: Category;
+  category: Category;
 
   @Column()
-  category_id!: string;
+  category_id: string;
 
   @Column()
-  type!: string;
+  type: string;
 
   @Column()
-  value!: number;
+  value: number;
 
   @CreateDateColumn()
-  created_at!: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updated_at!: Date;
+  updated_at: Date;
 }
 
 export default Transaction;

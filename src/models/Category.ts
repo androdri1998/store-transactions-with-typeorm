@@ -12,16 +12,16 @@ import configTables from '../config/tables';
 @Entity(configTables.CATEGORIES)
 class Category {
   @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  id: string;
 
   @Column()
-  title!: string;
+  title: string;
 
   @CreateDateColumn()
-  created_at!: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updated_at!: Date;
+  updated_at: Date;
 }
 
 export default Category;

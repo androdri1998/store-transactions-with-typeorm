@@ -6,6 +6,7 @@ function logRequests(req: Request, res: Response, next: NextFunction): void {
   const logLabel = `[${method.toUpperCase()}] ${url}`;
   console.time(logLabel);
   next();
+  console.log('fim log');
   console.timeEnd(logLabel);
 }
 

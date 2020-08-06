@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+import './database';
 import app from './app';
 
 app.listen(3333, () => {
