@@ -12,6 +12,7 @@ interface Request {
   value: number;
   type: string;
   category: string;
+  validateBalance?: boolean;
 }
 
 interface Response {
@@ -36,23 +37,25 @@ class CreateTransactionService {
     title,
     type,
     value,
+    validateBalance = true,
   }: Request): Promise<Response> {
     const transactionRepository = getRepository(Transaction);
     const categoryRepository = getRepository(Category);
 
     const transactions = await transactionRepository.find();
 
-    const initialValue = 0;
-    const totalIncome = transactions.reduce((amount, transaction) => {
-      return transaction.type === 'income'
-        ? amount + transaction.value
-        : amount - transaction.value;
-    }, initialValue);
-
     const valueInCents = value * 100;
+    if (validateBalance) {
+      const initialValue = 0;
+      const totalIncome = transactions.reduce((amount, transaction) => {
+        return transaction.type === 'income'
+          ? amount + transaction.value
+          : amount - transaction.value;
+      }, initialValue);
 
-    if (type === 'outcome' && totalIncome - valueInCents < 0) {
-      throw new AppError('No have money enough', HTTPStatusCode.BAD_REQUEST);
+      if (type === 'outcome' && totalIncome - valueInCents < 0) {
+        throw new AppError('No have money enough', HTTPStatusCode.BAD_REQUEST);
+      }
     }
 
     const findCategory = await categoryRepository.findOne({

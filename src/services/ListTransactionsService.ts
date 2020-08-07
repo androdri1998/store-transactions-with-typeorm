@@ -1,6 +1,8 @@
 /* eslint-disable camelcase */
 import { getRepository } from 'typeorm';
 
+import GetBalaceTransactionService from './GetBalaceTransactionService';
+
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
 
@@ -33,6 +35,7 @@ interface TransactionsResponse {
 
 class ListTransactionsService {
   public async execute(): Promise<TransactionsResponse> {
+    const getBalaceTransactionService = new GetBalaceTransactionService();
     const transactionRepository = getRepository(Transaction);
     const categoryRepository = getRepository(Category);
 
@@ -47,27 +50,7 @@ class ListTransactionsService {
       }),
     );
 
-    const initialValue = {
-      income: 0,
-      outcome: 0,
-      total: 0,
-    };
-    const totalBalance = transactions.reduce((accumulator, transaction) => {
-      return {
-        income:
-          transaction.type === 'income'
-            ? accumulator.income + transaction.value
-            : accumulator.income,
-        outcome:
-          transaction.type === 'outcome'
-            ? accumulator.outcome + transaction.value
-            : accumulator.outcome,
-        total:
-          transaction.type === 'income'
-            ? accumulator.total + transaction.value
-            : accumulator.total - transaction.value,
-      };
-    }, initialValue);
+    const totalBalance = getBalaceTransactionService.execute({ transactions });
 
     return { transactions: serializedTransactions, balance: totalBalance };
   }

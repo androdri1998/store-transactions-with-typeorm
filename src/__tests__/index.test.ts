@@ -1,4 +1,5 @@
 import request from 'supertest';
+import path from 'path';
 import { Connection, getConnection } from 'typeorm';
 import HTTPStatusCode from 'http-status-codes';
 
@@ -25,6 +26,9 @@ describe('Simple tests', () => {
 
   afterAll(async () => {
     const mainConnection = getConnection();
+
+    await connection.query('DELETE FROM transactions');
+    await connection.query('DELETE FROM categories');
 
     await connection.close();
     await mainConnection.close();
@@ -81,7 +85,6 @@ describe('Simple tests', () => {
       category: 'Test new category',
     });
     expect(response.status).toBe(HTTPStatusCode.BAD_REQUEST);
-    expect(1 + 1).toBe(2);
   });
   it('should be able to delete a transaction', async () => {
     const transactionCreated = await request(App).post('/transactions').send({
@@ -96,6 +99,12 @@ describe('Simple tests', () => {
     expect(response.status).toBe(HTTPStatusCode.NO_CONTENT);
   });
   it('should be able to import transactions', async () => {
-    expect(1 + 1).toBe(2);
+    const importCSV = path.resolve(__dirname, 'import_template.csv');
+
+    const response = await request(App)
+      .post('/transactions/import')
+      .attach('file', importCSV);
+
+    expect(response.status).toBe(HTTPStatusCode.CREATED);
   });
 });
