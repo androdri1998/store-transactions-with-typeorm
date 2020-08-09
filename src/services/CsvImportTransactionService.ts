@@ -1,8 +1,10 @@
 /* eslint-disable camelcase */
+import { getRepository } from 'typeorm';
 import csvParser from 'csv-parser';
 import fs from 'fs';
 
-import CreateTransactionService from './CreateTransactionService';
+import Category from '../models/Category';
+import Transaction from '../models/Transaction';
 
 interface ITransaction {
   id: string;
@@ -39,7 +41,8 @@ interface Response {
 
 class CsvImportTransactionService {
   public async execute({ pathName }: Request): Promise<Response> {
-    const createTransactionService = new CreateTransactionService();
+    const transactionRepository = getRepository(Transaction);
+    const categoryRepository = getRepository(Category);
     const parsers = csvParser();
 
     const transactions: IParamsCreateTransaction[] = [];
@@ -63,17 +66,43 @@ class CsvImportTransactionService {
 
     await new Promise(resolve => parseCSV.on('end', resolve));
 
+    const categoriesIncludeds: string[] = [];
+    transactions.map(transaction => {
+      if (!categoriesIncludeds.includes(transaction.category.toUpperCase())) {
+        categoriesIncludeds.push(transaction.category.toUpperCase());
+      }
+      return true;
+    });
+
+    const categories = await Promise.all(
+      categoriesIncludeds.map(async category => {
+        const checkCategory = await categoryRepository.findOne({
+          where: { title: category },
+        });
+        const newCategory = categoryRepository.create({ title: category });
+        if (!checkCategory) {
+          await categoryRepository.save(newCategory);
+        }
+
+        return checkCategory || newCategory;
+      }),
+    );
+
     const transactionsCreateds = await Promise.all(
       transactions.map(async transaction => {
-        const transactionCreated = await createTransactionService.execute({
-          category: transaction.category,
+        const categoryTransaction = categories.find(
+          category => category?.title === transaction.category.toUpperCase(),
+        );
+
+        const valueInCents = transaction.value * 100;
+        const newTransaction = transactionRepository.create({
+          category_id: categoryTransaction?.id,
           title: transaction.title,
           type: transaction.type,
-          value: transaction.value,
-          validateBalance: false,
+          value: valueInCents,
         });
-
-        return transactionCreated;
+        await transactionRepository.save(newTransaction);
+        return { ...newTransaction, category: categoryTransaction };
       }),
     );
 

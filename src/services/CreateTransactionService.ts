@@ -12,7 +12,6 @@ interface Request {
   value: number;
   type: string;
   category: string;
-  validateBalance?: boolean;
 }
 
 interface Response {
@@ -37,7 +36,6 @@ class CreateTransactionService {
     title,
     type,
     value,
-    validateBalance = true,
   }: Request): Promise<Response> {
     const transactionRepository = getRepository(Transaction);
     const categoryRepository = getRepository(Category);
@@ -45,27 +43,28 @@ class CreateTransactionService {
     const transactions = await transactionRepository.find();
 
     const valueInCents = value * 100;
-    if (validateBalance) {
-      const initialValue = 0;
-      const totalIncome = transactions.reduce((amount, transaction) => {
-        return transaction.type === 'income'
-          ? amount + transaction.value
-          : amount - transaction.value;
-      }, initialValue);
+    const initialValue = 0;
+    const totalIncome = transactions.reduce((amount, transaction) => {
+      return transaction.type === 'income'
+        ? amount + transaction.value
+        : amount - transaction.value;
+    }, initialValue);
 
-      if (type === 'outcome' && totalIncome - valueInCents < 0) {
-        throw new AppError('No have money enough', HTTPStatusCode.BAD_REQUEST);
-      }
+    if (type === 'outcome' && totalIncome - valueInCents < 0) {
+      throw new AppError('No have money enough', HTTPStatusCode.BAD_REQUEST);
     }
 
     const findCategory = await categoryRepository.findOne({
-      where: { title: category.toUpperCase() },
+      where: { title: category.trim().toUpperCase() },
     });
 
     let categoryToSaveTransaction;
+    console.log(`_${category.trim().toUpperCase()}_`);
     const newCategory = categoryRepository.create({
-      title: category.toUpperCase(),
+      title: category.trim().toUpperCase(),
     });
+
+    console.log(findCategory);
     if (!findCategory) {
       await categoryRepository.save(newCategory);
       categoryToSaveTransaction = { ...newCategory };
