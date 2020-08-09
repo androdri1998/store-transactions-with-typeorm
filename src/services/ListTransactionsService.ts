@@ -46,7 +46,8 @@ class ListTransactionsService {
         const category = await categoryRepository.findOne(
           transaction.category_id,
         );
-        return { ...transaction, category };
+        const valueInReal = transaction.value / 100;
+        return { ...transaction, category, value: valueInReal };
       }),
     );
 
