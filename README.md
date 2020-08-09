@@ -10,7 +10,7 @@ Should be to create and to fill the environment file with name `.env.[stage]`, h
 TEST_DB_NAME=[DATABASE_NAME_TEST]
 ```  
   
-**`[stage]` should be replaced by a environment name `test`, `dev` or `prod`.**  
+**`[stage]` should be replaced by a environment name `test` or `dev`.**  
   
 #### Fill the file `.ormconfig.json`
 Should be to create and to fill database settings file with name `ormconfig.json`,  has a file named as `.ormconfig.example.json` as an example to settings required.  
@@ -39,11 +39,12 @@ Should be to create and to fill database settings file with name `ormconfig.json
 Use this command script to transpile all files `.ts` to `.js` to path `./dist`.  
   
 #### `yarn dev:server`  
-Use this command script to run a dev server on port `3333`.
+Use this command script to run a dev server on port `3333`.  
+**stage: dev**  
   
 #### `yarn test`  
 Use this command script to run application tests.  
-**stage: dev**  
+**stage: test**  
   
 #### `yarn typeorm`  
 Use this command script to run commands of the `typeorm`.  
