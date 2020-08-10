@@ -45,7 +45,7 @@ routes.post(
       pathName,
     });
 
-    return res.status(HTTPStatusCode.CREATED).json({ transactions });
+    return res.status(HTTPStatusCode.CREATED).json(transactions);
   },
 );
 
